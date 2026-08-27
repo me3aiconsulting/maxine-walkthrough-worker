@@ -9,6 +9,7 @@
 import express from "express";
 import { processWalkthrough } from "./pipeline.js";
 import { interpretWalkthrough } from "./interpret.js";
+import { generateSow } from "./sow.js";
 
 const app = express();
 app.use(express.json({ limit: "1mb" }));
@@ -96,6 +97,20 @@ app.post("/interpret", (req, res) => {
     callbackUrl: callback_url,
     maxFrames: Math.min(Number(max_frames) || 40, 60),
   }).catch((err) => console.error(`[interpret ${session_id}] unhandled:`, err));
+});
+
+// Stage 3: SOW draft generation. Requires a capture with a dossier (status "interpreted"+).
+app.post("/sow", (req, res) => {
+  if (req.header("x-worker-secret") !== process.env.WORKER_SHARED_SECRET) {
+    return res.status(401).json({ error: "unauthorized" });
+  }
+  const { session_id, model, callback_url } = req.body || {};
+  if (!session_id) return res.status(400).json({ error: "session_id is required" });
+
+  res.status(202).json({ accepted: true, session_id, stage: "sow" });
+
+  generateSow({ sessionId: session_id, model, callbackUrl: callback_url })
+    .catch((err) => console.error(`[sow ${session_id}] unhandled:`, err));
 });
 
 const port = process.env.PORT || 8080;
