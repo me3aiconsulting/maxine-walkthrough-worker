@@ -26,7 +26,7 @@ export async function processWalkthrough(job) {
   const log = (...a) => console.log(`[${sessionId}]`, ...a);
 
   try {
-    await upsertCapture(sessionId, { video_path: videoPath, status: "processing" });
+    await upsertCapture(sessionId, { video_path: videoPath, status: "processing", error: null });
 
     // 1. Pull the raw video down from Storage
     const videoFile = path.join(work, "input" + path.extname(videoPath || ".mp4"));
