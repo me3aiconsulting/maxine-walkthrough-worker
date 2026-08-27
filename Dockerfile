@@ -1,5 +1,5 @@
 # Maxine Walkthrough Worker — Railway/Fly.io deployable
-FROM node:20-slim
+FROM node:22-slim
 
 # ffmpeg + ffprobe (the only system dependency this worker needs)
 RUN apt-get update \
